@@ -1,20 +1,16 @@
 package com.training.weatherapp.utils
 
-import android.app.PendingIntent.getActivity
 import android.content.Context
 import android.content.Intent
 import android.location.LocationManager
 import android.net.NetworkCapabilities
 import android.provider.Settings
 import android.util.Log
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LifecycleOwner
-import com.training.weatherapp.MainActivity
-import com.training.weatherapp.R
 import com.training.weatherapp.activities.NoInternetActivity
-import com.training.weatherapp.model.LocationModel
+import com.training.weatherapp.models.LocationModel
 import kotlin.system.exitProcess
 
 class PrerequisitesChecker(context: Context) {
@@ -60,8 +56,8 @@ class PrerequisitesChecker(context: Context) {
             monitorInternetConnection()
             true
         } else {
-            Toast.makeText(mContext, "No internet available. Please, connect!", Toast.LENGTH_LONG)
-                .show()
+          //  Toast.makeText(mContext, "No internet available. Please, connect!", Toast.LENGTH_LONG)
+           //     .show()
             false
         }
     }

@@ -12,7 +12,7 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.training.weatherapp.constatns.LocationPermission
-import com.training.weatherapp.model.LocationModel
+import com.training.weatherapp.models.LocationModel
 
 
 class LocationLiveData(context : Context) : LiveData<LocationModel>() {

@@ -10,7 +10,6 @@ import com.training.weatherapp.utils.PrerequisitesChecker
 
 class MainActivity : AppCompatActivity() {
     private lateinit var mPrerequisitesChecker: PrerequisitesChecker
-    private lateinit var mIntent: Intent
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
