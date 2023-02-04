@@ -19,32 +19,36 @@ import javax.net.SocketFactory
 const val TAG = "MyTagConnectionManager"
 
 class ConnectionLiveData(context : Context) : LiveData<Boolean>() {
-    private lateinit var networkCallback: ConnectivityManager.NetworkCallback
-    private val connectivityManager =
+    private lateinit var mNetworkCallback: ConnectivityManager.NetworkCallback
+    private val mConnectivityManager =
         context.getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
     private val validNetworks: MutableSet<Network> = HashSet()
+
+    fun getManager() : ConnectivityManager{
+        return mConnectivityManager
+    }
 
     private fun checkValidNetworks() {
         postValue(validNetworks.size > 0)
     }
 
     override fun onActive() {
-        networkCallback = createNetworkCallback()
+        mNetworkCallback = createNetworkCallback()
         val networkRequest = NetworkRequest.Builder()
             .addCapability(NET_CAPABILITY_INTERNET)
             .build()
-        connectivityManager.registerNetworkCallback(networkRequest, networkCallback)
+        mConnectivityManager.registerNetworkCallback(networkRequest, mNetworkCallback)
     }
 
     override fun onInactive() {
-        connectivityManager.unregisterNetworkCallback(networkCallback)
+        mConnectivityManager.unregisterNetworkCallback(mNetworkCallback)
     }
 
     private fun createNetworkCallback() = object : ConnectivityManager.NetworkCallback() {
 
         override fun onAvailable(network: Network) {
             Log.d(TAG, "onAvailable: $network")
-            val networkCapabilities = connectivityManager.getNetworkCapabilities(network)
+            val networkCapabilities = mConnectivityManager.getNetworkCapabilities(network)
             val hasInternetCapability = networkCapabilities?.hasCapability(NET_CAPABILITY_INTERNET)
             Log.d(TAG, "onAvailable: ${network}, $hasInternetCapability")
 
