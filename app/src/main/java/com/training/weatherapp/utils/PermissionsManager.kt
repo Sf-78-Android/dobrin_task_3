@@ -1,15 +1,15 @@
 package com.training.weatherapp.utils
 
-import android.Manifest.permission.ACCESS_COARSE_LOCATION
-import android.Manifest.permission.ACCESS_FINE_LOCATION
+import android.Manifest.permission.*
 import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
+import com.training.weatherapp.constatns.Constants.LOCATION_CODE
 
 class PermissionsManager(context: Context) {
     private val mContext = context
-    private fun isLocationPermissionGranted(): Boolean {
+     fun isLocationPermissionGranted(): Boolean {
         return (ActivityCompat.checkSelfPermission(mContext,
             ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(mContext,
@@ -22,7 +22,7 @@ class PermissionsManager(context: Context) {
                  mContext as Activity, arrayOf(
                      ACCESS_COARSE_LOCATION,
                      ACCESS_FINE_LOCATION
-                 ), 1001
+                 ), LOCATION_CODE
              )
          }
      }

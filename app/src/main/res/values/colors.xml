@@ -1,3 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="card_view_background">#36EEF4</color>
+    <color name="white">#36F465</color>
+    <color name="main_screen_content_background_color">#36F4BE</color>
+    <color name="primary_text_color">#627A78</color>
+    <color name="secondary_text_color">#9F7A09</color>
+    <color name="divider_background">#8A3E57</color>
+    <color name="teal_200">#8A3E57</color>
+    <color name="purple_500">#8A3E57</color>
+    <color name="purple_700">#367CF4</color>
+    <color name="purple_200">#083E99</color>
+    <color name="black">#090100</color>
 </resources>

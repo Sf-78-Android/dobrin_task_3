@@ -11,34 +11,41 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
-import com.training.weatherapp.constatns.LocationPermission
+import com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY
+import com.training.weatherapp.constatns.Constants.INTERVAL_MILLIS
+import com.training.weatherapp.constatns.Constants.MIN_UPDATE_DISTANCE
 import com.training.weatherapp.models.LocationModel
 
 
-class LocationLiveData(context : Context) : LiveData<LocationModel>() {
+class LocationLiveData(context: Context) : LiveData<LocationModel>() {
     private var mFusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
     private val mContext = context
+    private val mPermissionsManager: PermissionsManager = PermissionsManager(mContext)
+
 
     override fun onActive() {
         super.onActive()
-            if (LocationPermission.isLocationPermissionGranted(mContext)) {
-                try {
-                    mFusedLocationClient.lastLocation
-                        .addOnSuccessListener { location: Location? ->
-                            location?.also {
-                                setLocationData(it)
-                            }
-                        }
-                    startLocationUpdates()
-                }catch (_:SecurityException){
-
+        while (!mPermissionsManager.isLocationPermissionGranted()) {
+            mPermissionsManager.requestLocationPermission()
+        }
+        try {
+            mFusedLocationClient.lastLocation
+                .addOnSuccessListener { location: Location? ->
+                    location?.also {
+                        setLocationData(it)
+                    }
                 }
-            }
+
+            startLocationUpdates()
+        } catch (_: SecurityException) {
+
+        }
     }
 
     override fun onInactive() {
         super.onInactive()
         mFusedLocationClient.removeLocationUpdates(locationCallback)
+
     }
 
     private fun setLocationData(location: Location) {
@@ -46,6 +53,7 @@ class LocationLiveData(context : Context) : LiveData<LocationModel>() {
             longitude = location.longitude,
             latitude = location.latitude
         )
+
     }
 
     private val locationCallback = object : LocationCallback() {
@@ -57,22 +65,23 @@ class LocationLiveData(context : Context) : LiveData<LocationModel>() {
         }
     }
 
-        @SuppressLint("MissingPermission")
-        private fun startLocationUpdates() {
-            mFusedLocationClient.requestLocationUpdates(
-                locationRequest,
-                locationCallback,
-                null
-            )
+    @SuppressLint("MissingPermission")
+    private fun startLocationUpdates() {
+        mFusedLocationClient.requestLocationUpdates(
+            locationRequest,
+            locationCallback,
+            null
+        )
 
-        }
+    }
 
     companion object {
-        val locationRequest: LocationRequest = LocationRequest.create().apply {
-            interval = 10000
-            fastestInterval = 5000
-            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-        }
+        val locationRequest: LocationRequest = LocationRequest
+            .Builder(INTERVAL_MILLIS)
+            .setPriority(PRIORITY_HIGH_ACCURACY)
+            .setMinUpdateDistanceMeters(MIN_UPDATE_DISTANCE)
+            .build()
+
     }
 
 }

@@ -8,6 +8,8 @@ import android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET
 import android.net.NetworkRequest
 import android.util.Log
 import androidx.lifecycle.LiveData
+import com.training.weatherapp.constatns.Constants.ON_AVAILABLE_NETWORK
+import com.training.weatherapp.constatns.Constants.ON_AVAILABLE_NETWORK_ADD
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -18,13 +20,13 @@ import javax.net.SocketFactory
 
 const val TAG = "MyTagConnectionManager"
 
-class ConnectionLiveData(context : Context) : LiveData<Boolean>() {
+class ConnectionLiveData(context: Context) : LiveData<Boolean>() {
     private lateinit var mNetworkCallback: ConnectivityManager.NetworkCallback
     private val mConnectivityManager =
         context.getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
     private val validNetworks: MutableSet<Network> = HashSet()
 
-    fun getManager() : ConnectivityManager{
+    fun getManager(): ConnectivityManager {
         return mConnectivityManager
     }
 
@@ -47,10 +49,10 @@ class ConnectionLiveData(context : Context) : LiveData<Boolean>() {
     private fun createNetworkCallback() = object : ConnectivityManager.NetworkCallback() {
 
         override fun onAvailable(network: Network) {
-            Log.d(TAG, "onAvailable: $network")
+            Log.d(TAG, String.format(ON_AVAILABLE_NETWORK,network))
             val networkCapabilities = mConnectivityManager.getNetworkCapabilities(network)
             val hasInternetCapability = networkCapabilities?.hasCapability(NET_CAPABILITY_INTERNET)
-            Log.d(TAG, "onAvailable: ${network}, $hasInternetCapability")
+            Log.d(TAG, String.format(ON_AVAILABLE_NETWORK_ADD,network,hasInternetCapability))
 
             if (hasInternetCapability == true) {
                 // Check if this network actually has internet

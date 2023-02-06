@@ -8,9 +8,16 @@ import android.provider.Settings
 import android.util.Log
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.location.LocationManagerCompat
+import androidx.core.location.LocationManagerCompat.isLocationEnabled
 import androidx.lifecycle.LifecycleOwner
 import com.training.weatherapp.activities.NoInternetActivity
+import com.training.weatherapp.constatns.Constants.DELAY_PROCESS
+import com.training.weatherapp.constatns.Constants.TIMEOUT_PROCESS
 import com.training.weatherapp.models.LocationModel
+import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers.IO
+import okhttp3.Dispatcher
 import kotlin.system.exitProcess
 
 class PrerequisitesChecker(context: Context) {
@@ -51,14 +58,44 @@ class PrerequisitesChecker(context: Context) {
 
     }
 
-    fun checkInternetConnection() : Boolean  {
+    private fun monitorLocation() {
+        mLocationLiveData.observe(mContext as LifecycleOwner) { LocationModel ->
+            run {
+                mLocationModel = LocationModel
+                Log.i(
+                    "Current location",
+                    "longitude: ${LocationModel.longitude} latitude: ${LocationModel.latitude}"
+                )
+            }
+        }
+    }
+
+    fun checkInternetConnection(): Boolean {
         return if (hasInternet()) {
             monitorInternetConnection()
             true
         } else {
-          //  Toast.makeText(mContext, "No internet available. Please, connect!", Toast.LENGTH_LONG)
-           //     .show()
             false
+        }
+    }
+
+    fun checkIfLocationsIsActivated() {
+        if (hasLocation()) {
+            monitorLocation()
+        } else {
+            AlertDialog.Builder(mContext)
+                .setMessage("Location not enabled")
+                .setPositiveButton(
+                    "Open settings"
+                ) { _, _ ->
+                    mContext.startActivity(
+                        Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                    )
+                }
+                .setNegativeButton("Cancel") { _, _ ->
+                    exitProcess(1)
+                }
+                .show()
         }
     }
 
@@ -76,7 +113,7 @@ class PrerequisitesChecker(context: Context) {
     }
 
 
-    fun checkIfLocationsIsActivated() {
+    private fun hasLocation(): Boolean {
         var gpsEnabled = false
         var networkEnabled = false
 
@@ -89,37 +126,23 @@ class PrerequisitesChecker(context: Context) {
             networkEnabled = mLocationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
         } catch (_: Exception) {
         }
-
-        if (!gpsEnabled && !networkEnabled) {
-            // notify user
-            AlertDialog.Builder(mContext)
-                .setMessage("Location not enabled")
-                .setPositiveButton(
-                    "Open settings"
-                ) { _, _ ->
-                    mContext.startActivity(
-                        Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-                    )
-                }
-                .setNegativeButton("Cancel") { _, _ ->
-                    exitProcess(1)
-                }
-                .show()
-        } else {
-            mLocationLiveData.observe(mContext as LifecycleOwner) { LocationModel ->
-                kotlin.run {
-                    mLocationModel = LocationModel
-                    Log.i(
-                        "Current location",
-                        "longitude: ${LocationModel.longitude} latitude: ${LocationModel.latitude}"
-                    )
-                }
-
-            }
-        }
+        return (gpsEnabled && networkEnabled)
     }
 
-    fun getCurrentLocation(): LocationModel {
-        return mLocationModel
+
+    suspend fun getCurrentLocation(): LocationModel {
+
+        var counter = 0
+        val timeOut = TIMEOUT_PROCESS // 5 sec
+
+        while (mLocationLiveData.value == null) {
+            if (counter > timeOut) break
+            counter++
+            delay(DELAY_PROCESS)
+        }
+
+        return withContext(Dispatchers.IO) {
+            mLocationModel
+        }
     }
 }
