@@ -22,25 +22,26 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        //check if device location is activated and if not prompt to activate it
         mPrerequisitesChecker = PrerequisitesChecker(this)
         mBinding = ActivityMainBinding.inflate(layoutInflater)
         val view = mBinding.root
         setContentView(view)
-        mRequestManager = RequestManager(this, mBinding )
-        mPrerequisitesChecker.requestPermissionsIfNotGranted()
-        mPrerequisitesChecker.checkIfLocationsIsActivated()
         // check if device is connected and start monitoring
         if (!mPrerequisitesChecker.checkInternetConnection()) {
             val intent = Intent(this, NoInternetActivity::class.java)
             this.startActivity(intent)
-        }
+        } else {
+            mRequestManager = RequestManager(this, mBinding)
+            mPrerequisitesChecker.checkIfLocationsIsActivated()
+            //check if device location is activated and if not prompt to activate it
+            mPrerequisitesChecker.requestPermissionsIfNotGranted()
 
-        executeRequest()
-
-        val dataRefreshBtn : Button = findViewById(R.id.dataRefresh)
-        dataRefreshBtn.setOnClickListener {
             executeRequest()
+
+            val dataRefreshBtn : Button = findViewById(R.id.dataRefresh)
+            dataRefreshBtn.setOnClickListener {
+                executeRequest()
+            }
         }
 
     }
