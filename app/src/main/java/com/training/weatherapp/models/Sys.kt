@@ -1,6 +1,6 @@
 package com.training.weatherapp.models
 
-import java.io.*
+import java.io.Serializable
 
 data class Sys(
     val type: Int,

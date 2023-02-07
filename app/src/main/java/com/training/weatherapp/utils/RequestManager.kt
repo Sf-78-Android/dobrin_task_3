@@ -67,9 +67,10 @@ class RequestManager(context: Context, binding: ActivityMainBinding) {
                 response: Response<WeatherResponse>
             ) {
                 if (response.isSuccessful) {
-                    hideProgressDialog()
+
                     mWeatherList = response.body()
                     setupUI()
+                    hideProgressDialog()
                     Log.i("Response Result", "$mWeatherList")
                 } else {
                     when (response.code()) {

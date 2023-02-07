@@ -10,8 +10,7 @@ object Constants {
     const val LR_SYMBOL = "LR"
     const val MM_SYMBOL = "MM"
     const val DATE_ALLOCATION = 1000L
-    const val DELAY_PROCESS = 100L
-    const val TIMEOUT_PROCESS = 50
+    const val DELAY_PROCESS = 200L
     const val LOCATION_CODE = 1001
     const val INTERVAL_MILLIS = 10000L
     const val MIN_UPDATE_DISTANCE = 15.00F

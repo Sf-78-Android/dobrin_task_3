@@ -19,15 +19,10 @@ import com.training.weatherapp.models.LocationModel
 
 class LocationLiveData(context: Context) : LiveData<LocationModel>() {
     private var mFusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
-    private val mContext = context
-    private val mPermissionsManager: PermissionsManager = PermissionsManager(mContext)
-
 
     override fun onActive() {
         super.onActive()
-        while (!mPermissionsManager.isLocationPermissionGranted()) {
-            mPermissionsManager.requestLocationPermission()
-        }
+
         try {
             mFusedLocationClient.lastLocation
                 .addOnSuccessListener { location: Location? ->
@@ -58,7 +53,6 @@ class LocationLiveData(context: Context) : LiveData<LocationModel>() {
 
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
-            locationResult ?: return
             for (location in locationResult.locations) {
                 setLocationData(location)
             }
@@ -81,7 +75,6 @@ class LocationLiveData(context: Context) : LiveData<LocationModel>() {
             .setPriority(PRIORITY_HIGH_ACCURACY)
             .setMinUpdateDistanceMeters(MIN_UPDATE_DISTANCE)
             .build()
-
     }
 
 }

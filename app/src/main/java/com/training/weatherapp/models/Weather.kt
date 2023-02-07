@@ -1,7 +1,6 @@
 package com.training.weatherapp.models
 
-import android.media.Image
-import java.io.*
+import java.io.Serializable
 
 data class Weather(
     val id: Int,

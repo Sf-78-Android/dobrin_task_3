@@ -8,16 +8,13 @@ import android.provider.Settings
 import android.util.Log
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.location.LocationManagerCompat
-import androidx.core.location.LocationManagerCompat.isLocationEnabled
 import androidx.lifecycle.LifecycleOwner
 import com.training.weatherapp.activities.NoInternetActivity
 import com.training.weatherapp.constatns.Constants.DELAY_PROCESS
-import com.training.weatherapp.constatns.Constants.TIMEOUT_PROCESS
 import com.training.weatherapp.models.LocationModel
-import kotlinx.coroutines.*
-import kotlinx.coroutines.Dispatchers.IO
-import okhttp3.Dispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import kotlin.system.exitProcess
 
 class PrerequisitesChecker(context: Context) {
@@ -131,16 +128,9 @@ class PrerequisitesChecker(context: Context) {
 
 
     suspend fun getCurrentLocation(): LocationModel {
-
-        var counter = 0
-        val timeOut = TIMEOUT_PROCESS // 5 sec
-
-        while (mLocationLiveData.value == null) {
-            if (counter > timeOut) break
-            counter++
+        while (!this::mLocationModel.isInitialized){
             delay(DELAY_PROCESS)
         }
-
         return withContext(Dispatchers.IO) {
             mLocationModel
         }

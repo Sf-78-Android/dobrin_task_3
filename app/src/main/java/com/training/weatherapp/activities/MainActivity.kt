@@ -47,15 +47,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun executeRequest() {
-        GlobalScope.launch(Dispatchers.Main) {
 
-            val location = mPrerequisitesChecker.getCurrentLocation()
+        GlobalScope.launch(Dispatchers.Main) {
+           val location = mPrerequisitesChecker.getCurrentLocation()
 
             val longitude = location.longitude
 
             val latitude = location.latitude
             mRequestManager.getWeatherDetails(longitude, latitude)
-
         }
     }
 }
