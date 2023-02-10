@@ -19,7 +19,7 @@ class PermissionsManager(context: Context) {
             ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
     }
 
-     fun requestLocationPermission() {
+     fun requestLocationPermission()  {
          if (!isLocationPermissionGranted()) {
              ActivityCompat.requestPermissions(
                  mContext as Activity, arrayOf(

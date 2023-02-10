@@ -1,6 +1,5 @@
 package com.training.weatherapp.network
 
-
 import com.training.weatherapp.models.WeatherResponse
 import retrofit2.Call
 import retrofit2.http.GET

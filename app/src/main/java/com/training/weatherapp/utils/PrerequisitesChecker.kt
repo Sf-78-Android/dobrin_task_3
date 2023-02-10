@@ -3,82 +3,49 @@ package com.training.weatherapp.utils
 import android.content.Context
 import android.content.Intent
 import android.location.LocationManager
+import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.provider.Settings
-import android.util.Log
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.LifecycleOwner
-import com.training.weatherapp.activities.NoInternetActivity
-import com.training.weatherapp.constatns.Constants.DELAY_PROCESS
-import com.training.weatherapp.models.LocationModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
 import kotlin.system.exitProcess
 
 class PrerequisitesChecker(context: Context) {
     private val mContext: Context = context
     private var mLocationManager: LocationManager
-    private var mConnectionLiveData: ConnectionLiveData
     private var mPermissionsManager: PermissionsManager
-    private var mLocationLiveData: LocationLiveData
-    private lateinit var mLocationModel: LocationModel
-
+    private val mConnectivityManager =
+        context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
     init {
         mLocationManager =
             context.getSystemService(AppCompatActivity.LOCATION_SERVICE) as LocationManager
-        mConnectionLiveData = ConnectionLiveData(mContext)
         mPermissionsManager = PermissionsManager(mContext)
-        mLocationLiveData = LocationLiveData(mContext)
 
     }
 
-    fun requestPermissionsIfNotGranted() {
+    private fun requestPermissionsIfNotGranted() {
         mPermissionsManager.requestLocationPermission()
-    }
-
-    private fun monitorInternetConnection() {
-        mConnectionLiveData.observe(mContext as LifecycleOwner) { isNetworkAvailable ->
-            run {
-                if (!isNetworkAvailable) {
-                    Log.i("Disconnected", "No internet available")
-                    val intent = Intent(mContext, NoInternetActivity::class.java)
-                    mContext.startActivity(intent)
-                }
-                isNetworkAvailable?.let {
-                    Log.i("Internet", "Connected successfully")
-                }
-            }
-        }
 
     }
 
-    private fun monitorLocation() {
-        mLocationLiveData.observe(mContext as LifecycleOwner) { LocationModel ->
-            run {
-                mLocationModel = LocationModel
-                Log.i(
-                    "Current location",
-                    "longitude: ${LocationModel.longitude} latitude: ${LocationModel.latitude}"
-                )
-            }
-        }
-    }
 
     fun checkInternetConnection(): Boolean {
-        return if (hasInternet()) {
-            monitorInternetConnection()
-            true
-        } else {
-            false
+        val network = mConnectivityManager.activeNetwork ?: return false
+        val activeNetwork =
+            mConnectivityManager.getNetworkCapabilities(network) ?: return false
+
+        return when {
+            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
+            else -> false
         }
     }
 
     fun checkIfLocationsIsActivated() {
         if (hasLocation()) {
-            monitorLocation()
+            requestPermissionsIfNotGranted()
         } else {
             AlertDialog.Builder(mContext)
                 .setMessage("Location not enabled")
@@ -93,19 +60,6 @@ class PrerequisitesChecker(context: Context) {
                     exitProcess(1)
                 }
                 .show()
-        }
-    }
-
-    private fun hasInternet(): Boolean {
-        val network = mConnectionLiveData.getManager().activeNetwork ?: return false
-        val activeNetwork =
-            mConnectionLiveData.getManager().getNetworkCapabilities(network) ?: return false
-
-        return when {
-            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
-            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
-            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
-            else -> false
         }
     }
 
@@ -127,12 +81,9 @@ class PrerequisitesChecker(context: Context) {
     }
 
 
-    suspend fun getCurrentLocation(): LocationModel {
-        while (!this::mLocationModel.isInitialized){
-            delay(DELAY_PROCESS)
-        }
-        return withContext(Dispatchers.IO) {
-            mLocationModel
-        }
-    }
+
 }
+
+
+
+

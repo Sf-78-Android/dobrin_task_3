@@ -18,7 +18,7 @@ class NoInternetActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mPrerequisitesChecker = PrerequisitesChecker(this)
-        setContentView(R.layout.no_internet)
+        setContentView(R.layout.activity_no_internet)
         mButton = findViewById(refreshBtn)
         val layout : View = findViewById(R.id.no_internet_layout)
         val snackbar = Snackbar
