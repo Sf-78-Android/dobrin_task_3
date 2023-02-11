@@ -11,15 +11,16 @@
 
     <string name="image_contentDescription">image</string>
 
-    <string name="miles_per_hour">miles/hour</string>
+    <string name="miles_per_hour">mi/hr</string>
     <string name="refresh">Refresh</string>
     <string name="percent_sign">" %"</string>
     <string name="min">" min"</string>
     <string name="max">" max"</string>
     <string name="no_permission">Settings</string>
-    <string name="go_to_app_settings">Go to settings</string>
+    <string name="go_to_app_settings">Location permissions needed.</string>
     <string name="cancel">Cancel</string>
     <string name="location_not_enabled">Location not enabled</string>
+    <string name="condition">condition_discription</string>
 
     <!--END-->
 

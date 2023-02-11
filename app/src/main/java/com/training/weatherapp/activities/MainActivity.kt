@@ -71,25 +71,30 @@ class MainActivity : AppCompatActivity() {
 
         val dataRefreshBtn: Button = findViewById(R.id.dataRefresh)
         dataRefreshBtn.setOnClickListener {
+            if (!mPermissionsManager.isLocationPermissionGranted()) {
+                showDialogForPermissions()
+            }
             startProcess()
         }
     }
 
-    fun startProcess() {
+    private fun startProcess() {
         if (!mPrerequisitesChecker.checkInternetConnection()) {
             val intent = Intent(this, NoInternetActivity::class.java)
             this.startActivity(intent)
-        } else if (!mPrerequisitesChecker.hasLocation()) {
-            showDialogForLocationActivation()
-        } else {
-            mPermissionsManager.requestLocationPermission()
-            if (mPermissionsManager.isLocationPermissionGranted()) {
-                mRequestManager.requestLocationData()
-                executeRequest()
-            } else {
-                showDialogForPermissions()
+        } else
+            when {
+                !mPrerequisitesChecker.hasLocation() -> {
+                    showDialogForLocationActivation()
+                }
+                !mPermissionsManager.isLocationPermissionGranted() -> {
+                    mPermissionsManager.requestLocationPermission()
+                }
+                else -> {
+                    mRequestManager.requestLocationData()
+                    executeRequest()
+                }
             }
-        }
     }
 
     private fun showDialogForLocationActivation() {
@@ -130,6 +135,7 @@ class MainActivity : AppCompatActivity() {
 
     @OptIn(DelicateCoroutinesApi::class)
     private fun executeRequest() {
+
         showCustomProgressDialog()
         GlobalScope.launch {
             mRequestManager.getWeatherList()?.let { _weatherList ->
@@ -140,7 +146,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-
     }
 
 
