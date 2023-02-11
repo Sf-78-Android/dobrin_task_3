@@ -2,9 +2,13 @@ package com.training.weatherapp.activities
 
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.app.Dialog
+import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
@@ -12,18 +16,23 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.training.weatherapp.R
 import com.training.weatherapp.constatns.Constants
+import com.training.weatherapp.constatns.Constants.DATE_FORMAT
+import com.training.weatherapp.constatns.Constants.TAG_WEATHER_NAME
 import com.training.weatherapp.models.WeatherResponse
 import com.training.weatherapp.utils.LocationTranslator
+import com.training.weatherapp.utils.PermissionsManager
 import com.training.weatherapp.utils.PrerequisitesChecker
 import com.training.weatherapp.utils.RequestManager
 import kotlinx.coroutines.*
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.system.exitProcess
 
 
 class MainActivity : AppCompatActivity() {
     private lateinit var mPrerequisitesChecker: PrerequisitesChecker
     private lateinit var mRequestManager: RequestManager
+    private lateinit var mPermissionsManager: PermissionsManager
     private var mProgressDialog: Dialog? = null
     private lateinit var mTvMain: TextView
     private lateinit var mTvMainDescription: TextView
@@ -56,22 +65,66 @@ class MainActivity : AppCompatActivity() {
         mTvSunriseTime = findViewById(R.id.tv_sunrise_time)
         mPrerequisitesChecker = PrerequisitesChecker(this)
         mRequestManager = RequestManager(this)
+        mPermissionsManager = PermissionsManager(this)
 
+        startProcess()
+
+        val dataRefreshBtn: Button = findViewById(R.id.dataRefresh)
+        dataRefreshBtn.setOnClickListener {
+            startProcess()
+        }
+    }
+
+    fun startProcess() {
         if (!mPrerequisitesChecker.checkInternetConnection()) {
             val intent = Intent(this, NoInternetActivity::class.java)
             this.startActivity(intent)
+        } else if (!mPrerequisitesChecker.hasLocation()) {
+            showDialogForLocationActivation()
         } else {
-            mPrerequisitesChecker.checkIfLocationsIsActivated()
-            mRequestManager.requestLocationData()
-
-            executeRequest()
-            val dataRefreshBtn: Button = findViewById(R.id.dataRefresh)
-            dataRefreshBtn.setOnClickListener {
+            mPermissionsManager.requestLocationPermission()
+            if (mPermissionsManager.isLocationPermissionGranted()) {
+                mRequestManager.requestLocationData()
                 executeRequest()
+            } else {
+                showDialogForPermissions()
             }
-
         }
+    }
 
+    private fun showDialogForLocationActivation() {
+        AlertDialog.Builder(this)
+            .setMessage(getString(R.string.location_not_enabled))
+            .setPositiveButton(
+                Constants.OPEN_SETTINGS
+            ) { _, _ ->
+                this.startActivity(
+                    Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                )
+            }
+            .setNegativeButton(getString(R.string.cancel)) { _, _ ->
+                exitProcess(1)
+            }
+            .show()
+    }
+
+    private fun showDialogForPermissions() {
+        AlertDialog.Builder(this)
+            .setMessage(getString(R.string.go_to_app_settings))
+            .setPositiveButton(R.string.no_permission) { _, _ ->
+                try {
+                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                    val uri = Uri.fromParts("package", packageName, null)
+                    intent.data = uri
+                    startActivity(intent)
+                } catch (e: ActivityNotFoundException) {
+                    e.printStackTrace()
+                }
+            }
+            .setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
+                dialog.dismiss()
+                exitProcess(1)
+            }.show()
     }
 
 
@@ -81,6 +134,7 @@ class MainActivity : AppCompatActivity() {
         GlobalScope.launch {
             mRequestManager.getWeatherList()?.let { _weatherList ->
                 run {
+
                     setupUI(_weatherList)
                     hideCustomProgressDialog()
                 }
@@ -88,6 +142,7 @@ class MainActivity : AppCompatActivity() {
         }
 
     }
+
 
     private fun showCustomProgressDialog() {
         mProgressDialog = Dialog(this)
@@ -103,23 +158,24 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("SetTextI18n")
     private fun setupUI(weatherList: WeatherResponse) {
+        this.runOnUiThread {
+            for (i in weatherList.weather.indices) {
+                Log.i(TAG_WEATHER_NAME, weatherList.weather.toString())
 
-        for (i in weatherList.weather.indices) {
-            Log.i("Weather Name", weatherList.weather.toString())
-
-            mTvMain.text = weatherList.weather[i].main
-            mTvMainDescription.text = weatherList.weather[i].description
-            mTvTemp.text = weatherList.main.temp.toString() + getUnit(weatherList.sys.country)
+                mTvMain.text = weatherList.weather[i].main
+                mTvMainDescription.text = weatherList.weather[i].description
+                mTvTemp.text = weatherList.main.temp.toString() + getUnit(weatherList.sys.country)
 
 
-            mTvHumidity.text = weatherList.main.humidity.toString() + " per cent"
-            mTvMin.text = weatherList.main.temp_min.toString() + " min"
-            mTvMax.text = weatherList.main.temp_max.toString() + " max"
-            mTvSpeed.text = weatherList.wind.speed.toString()
-            mTvCountry.text = LocationTranslator.translateLocation(weatherList.sys.country)
-            mTvName.text = weatherList.name
+                mTvHumidity.text =
+                    weatherList.main.humidity.toString() + getString(R.string.percent_sign)
+                mTvMin.text = weatherList.main.temp_min.toString() + getString(R.string.min)
+                mTvMax.text = weatherList.main.temp_max.toString() + getString(R.string.max)
+                mTvSpeed.text = weatherList.wind.speed.toString()
+                mTvCountry.text = LocationTranslator.translateLocation(weatherList.sys.country)
+                mTvName.text = weatherList.name
 
-            this.runOnUiThread {
+
                 mTvSunriseTime.text = unixTime(weatherList.sys.sunrise.toLong())
                 mTvSunsetTime.text = unixTime(weatherList.sys.sunset.toLong())
                 when (weatherList.weather[i].icon) {
@@ -152,8 +208,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun unixTime(timex: Long): String? {
         val date = Date(timex * Constants.DATE_ALLOCATION)
-        @SuppressLint("SimpleDateFormat") val sdf =
-            SimpleDateFormat("HH:mm:ss")
+
+        @SuppressLint("SimpleDateFormat")
+        val sdf = SimpleDateFormat(DATE_FORMAT)
         sdf.timeZone = TimeZone.getDefault()
         return sdf.format(date)
     }

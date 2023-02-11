@@ -10,12 +10,12 @@
     <ProgressBar
         android:layout_width="@dimen/progress_bar_size"
         android:layout_height="@dimen/progress_bar_size"
-        android:layout_marginEnd="@dimen/progress_bar_marginEnd"/>
+        android:layout_marginEnd="@dimen/progress_bar_marginEnd" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/please_Wait"
-        android:textSize="@dimen/progress_bar_text_size"/>
+        android:textSize="@dimen/progress_bar_text_size" />
 
 </LinearLayout>

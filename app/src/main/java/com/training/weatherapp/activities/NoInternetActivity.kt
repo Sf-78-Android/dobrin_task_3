@@ -20,11 +20,11 @@ class NoInternetActivity : AppCompatActivity() {
         mPrerequisitesChecker = PrerequisitesChecker(this)
         setContentView(R.layout.activity_no_internet)
         mButton = findViewById(refreshBtn)
-        val layout : View = findViewById(R.id.no_internet_layout)
+        val layout: View = findViewById(R.id.no_internet_layout)
         val snackbar = Snackbar
             .make(layout, Constants.noConnections, Snackbar.LENGTH_LONG)
             .setAction(Constants.retry, View.OnClickListener {
-                if(mPrerequisitesChecker.checkInternetConnection()){
+                if (mPrerequisitesChecker.checkInternetConnection()) {
                     val intent = Intent(this, MainActivity::class.java)
                     this.startActivity(intent)
                 }
@@ -32,12 +32,12 @@ class NoInternetActivity : AppCompatActivity() {
         snackbar.show()
 
         mButton.setOnClickListener {
-           if(mPrerequisitesChecker.checkInternetConnection()){
-               val intent = Intent(this, MainActivity::class.java)
-               this.startActivity(intent)
-           } else {
-             snackbar.show()
-           }
+            if (mPrerequisitesChecker.checkInternetConnection()) {
+                val intent = Intent(this, MainActivity::class.java)
+                this.startActivity(intent)
+            } else {
+                snackbar.show()
+            }
         }
     }
 }

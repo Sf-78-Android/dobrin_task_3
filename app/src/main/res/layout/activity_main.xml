@@ -409,6 +409,6 @@
         android:layout_height="40dp"
         android:layout_gravity="center"
         android:layout_marginTop="20sp"
-        android:text="@string/refresh"/>
+        android:text="@string/refresh" />
 
 </LinearLayout>

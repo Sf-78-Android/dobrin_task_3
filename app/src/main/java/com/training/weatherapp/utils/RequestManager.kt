@@ -72,7 +72,7 @@ class RequestManager(context: Context) {
                             Log.e(ERROR_400, BAD_CONNECTION)
                         }
                         404 -> {
-                            Log.e(ERROR_404 ,RESOURCE_NOT_FOUND)
+                            Log.e(ERROR_404, RESOURCE_NOT_FOUND)
                         }
                         else -> {
                             Log.e(ERROR, GENERIC_ERROR)

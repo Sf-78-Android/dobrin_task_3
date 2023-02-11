@@ -1,34 +1,21 @@
 package com.training.weatherapp.utils
 
 import android.content.Context
-import android.content.Intent
 import android.location.LocationManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
-import android.provider.Settings
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import kotlin.system.exitProcess
 
 class PrerequisitesChecker(context: Context) {
-    private val mContext: Context = context
+
     private var mLocationManager: LocationManager
-    private var mPermissionsManager: PermissionsManager
     private val mConnectivityManager =
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
     init {
         mLocationManager =
             context.getSystemService(AppCompatActivity.LOCATION_SERVICE) as LocationManager
-        mPermissionsManager = PermissionsManager(mContext)
-
     }
-
-    private fun requestPermissionsIfNotGranted() {
-        mPermissionsManager.requestLocationPermission()
-
-    }
-
 
     fun checkInternetConnection(): Boolean {
         val network = mConnectivityManager.activeNetwork ?: return false
@@ -43,28 +30,7 @@ class PrerequisitesChecker(context: Context) {
         }
     }
 
-    fun checkIfLocationsIsActivated() {
-        if (hasLocation()) {
-            requestPermissionsIfNotGranted()
-        } else {
-            AlertDialog.Builder(mContext)
-                .setMessage("Location not enabled")
-                .setPositiveButton(
-                    "Open settings"
-                ) { _, _ ->
-                    mContext.startActivity(
-                        Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-                    )
-                }
-                .setNegativeButton("Cancel") { _, _ ->
-                    exitProcess(1)
-                }
-                .show()
-        }
-    }
-
-
-    private fun hasLocation(): Boolean {
+    fun hasLocation(): Boolean {
         var gpsEnabled = false
         var networkEnabled = false
 
@@ -79,8 +45,6 @@ class PrerequisitesChecker(context: Context) {
         }
         return (gpsEnabled && networkEnabled)
     }
-
-
 
 }
 
