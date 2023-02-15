@@ -19,10 +19,8 @@ import com.training.weatherapp.constatns.Constants
 import com.training.weatherapp.constatns.Constants.DATE_FORMAT
 import com.training.weatherapp.constatns.Constants.TAG_WEATHER_NAME
 import com.training.weatherapp.models.WeatherResponse
-import com.training.weatherapp.utils.LocationTranslator
-import com.training.weatherapp.utils.PermissionsManager
-import com.training.weatherapp.utils.PrerequisitesChecker
-import com.training.weatherapp.utils.RequestManager
+import com.training.weatherapp.utils.*
+import com.training.weatherapp.utils.Util.getUnit
 import kotlinx.coroutines.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -181,8 +179,8 @@ class MainActivity : AppCompatActivity() {
                 mTvName.text = weatherList.name
 
 
-                mTvSunriseTime.text = unixTime(weatherList.sys.sunrise.toLong())
-                mTvSunsetTime.text = unixTime(weatherList.sys.sunset.toLong())
+                mTvSunriseTime.text = Util.unixTime(weatherList.sys.sunrise.toLong())
+                mTvSunsetTime.text = Util.unixTime(weatherList.sys.sunset.toLong())
                 when (weatherList.weather[i].icon) {
                     "01d" -> mIvMain.setImageResource(R.drawable.sunny)
                     "02d" -> mIvMain.setImageResource(R.drawable.cloud)
@@ -202,24 +200,5 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
-    private fun getUnit(value: String): String {
-        if (Constants.US_SYMBOL == value || Constants.LR_SYMBOL == value || Constants.MM_SYMBOL == value) {
-            return Constants.FAHRENHEIT_SYMBOL
-        }
-        return Constants.CELSIUS_SYMBOL
-
-    }
-
-    private fun unixTime(timex: Long): String? {
-        val date = Date(timex * Constants.DATE_ALLOCATION)
-
-        @SuppressLint("SimpleDateFormat")
-        val sdf = SimpleDateFormat(DATE_FORMAT)
-        sdf.timeZone = TimeZone.getDefault()
-        return sdf.format(date)
-    }
-
-
 }
 

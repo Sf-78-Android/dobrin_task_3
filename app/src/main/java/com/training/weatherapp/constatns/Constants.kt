@@ -26,6 +26,8 @@ object Constants {
     const val TAG_WEATHER_NAME = "Weather Name"
     const val DATE_FORMAT = "HH:mm:ss"
     const val OPEN_SETTINGS = "Open settings"
+    const val FOUR_HUNDRED = 400
+    const val FOUR_HUNDRED_AND_FOUR = 404
 
 
 }

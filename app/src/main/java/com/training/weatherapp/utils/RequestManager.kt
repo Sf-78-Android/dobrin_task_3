@@ -14,6 +14,8 @@ import com.training.weatherapp.constatns.Constants.DELAY_PROCESS
 import com.training.weatherapp.constatns.Constants.ERROR
 import com.training.weatherapp.constatns.Constants.ERROR_400
 import com.training.weatherapp.constatns.Constants.ERROR_404
+import com.training.weatherapp.constatns.Constants.FOUR_HUNDRED
+import com.training.weatherapp.constatns.Constants.FOUR_HUNDRED_AND_FOUR
 import com.training.weatherapp.constatns.Constants.GENERIC_ERROR
 import com.training.weatherapp.constatns.Constants.RESOURCE_NOT_FOUND
 import com.training.weatherapp.constatns.Constants.RESULT_RESPONSE
@@ -68,10 +70,10 @@ class RequestManager(context: Context) {
                     Log.i(RESULT_RESPONSE, "$mWeatherList")
                 } else {
                     when (response.code()) {
-                        400 -> {
+                        FOUR_HUNDRED -> {
                             Log.e(ERROR_400, BAD_CONNECTION)
                         }
-                        404 -> {
+                        FOUR_HUNDRED_AND_FOUR -> {
                             Log.e(ERROR_404, RESOURCE_NOT_FOUND)
                         }
                         else -> {
